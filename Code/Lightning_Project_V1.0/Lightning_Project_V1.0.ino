@@ -12,7 +12,7 @@
 #define BUTTON_PIN_D_B   4
 #define BUTTON_PIN_D_M   5
 #define BUTTON_PIN_D_A   6
-#define BUTTON_PIN_ENTER   A1
+#define BUTTON_PIN_ENTER  A1
 #define PIXEL_PIN_I_B    7
 #define PIXEL_PIN_I_M    8
 #define PIXEL_PIN_I_A    9
@@ -39,9 +39,11 @@ boolean newState[8];
 int encendido=8;
 int pulsado=9;
 int puntuacion=0;
-int T_Comuta=2;
+int T_Comuta=1.5;
 int record=0;
+int punt_actual = 0;
 int T_JUEGO=30;
+int anterior = -1;
 
 unsigned long centyJUEGO= 0;
 unsigned long centy= millis();
@@ -194,20 +196,32 @@ void loop() {
   }//while(TIEMPO DE JUEGO)
   APAGA();
 //--TIEMPO DE JUEGO--//
+  
   if(record<puntuacion){
-    record=puntuacion;    
+    record=puntuacion;
+    punt_actual=puntuacion;    
+  }else if(puntuacion != 0){
+    punt_actual=puntuacion;
   }
- puntuacion=0;
- ACTUALIZA();   //
- SONDEO();
- ActualizaLCD();
+  //Serial.println(punt_actual);
+  puntuacion=0;
+ 
+  ACTUALIZA();   //
+  SONDEO();
+  ActualizaLCD();
  }//loop
 
 
 //---------------------------------------------------//
 int randon(){
   
-  int R= random(0,7);
+  int R = random(0,7);
+  do{
+    if(anterior == R){
+      R = random(0, 7);
+    }
+  }while(anterior == R);
+  anterior = R;
   //Serial.println(R);
 
       switch(R) {           
@@ -337,7 +351,11 @@ int randon(){
       lcd.setCursor(0,0);
       lcd.print("Record: ");
       lcd.print(record, DEC);
-      lcd.setCursor(0,2);
+      lcd.setCursor(0,1);
+      lcd.print("Last play: ");
+      lcd.print(punt_actual);
+      lcd.setCursor(0,3);
       lcd.print("Puntuacion: ");
       lcd.print(puntuacion, DEC);
+      
     }
